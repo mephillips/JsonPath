@@ -27,8 +27,6 @@ import org.apache.commons.lang.StringUtils;
 import java.io.*;
 import java.net.URL;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import static java.util.Arrays.asList;
@@ -166,9 +164,10 @@ public class JsonPath {
 
     /**
      * Applies this JsonPath to the provided json document.
-     * Note that the document must either a {@link List} or a {@link Map}
+     * Note that the document must be identified as either a List or Map by
+     * the {@link JsonProvider}
      *
-     * @param jsonObject a container Object ({@link List} or {@link Map})
+     * @param jsonObject a container Object
      * @param <T>  expected return type
      * @return list of objects matched by the given path
      */
@@ -176,11 +175,11 @@ public class JsonPath {
     public <T> T read(Object jsonObject) {
         notNull(jsonObject, "json can not be null");
 
-        if (!(jsonObject instanceof Map) && !(jsonObject instanceof List)) {
+        JsonProvider jsonProvider = JsonProviderFactory.createProvider();
+        if (!jsonProvider.isMap(jsonObject) && !jsonProvider.isList(jsonObject)) {
             throw new IllegalArgumentException("Invalid container object");
         }
         LinkedList<Filter> contextFilters = new LinkedList<Filter>(filters);
-        JsonProvider jsonProvider = JsonProviderFactory.createProvider();
 
         Object result = jsonObject;
 
